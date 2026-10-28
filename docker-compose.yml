@@ -1,5 +1,23 @@
-
 services:
+  etl:
+    build: .
+    image: iris-coal-etl:1.0
+    profiles:
+      - etl
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-iris}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-iris_coal}
+      IRIS_DB_HOST: postgis
+      IRIS_DB_PORT: "5432"
+    depends_on:
+      postgis:
+        condition: service_healthy
+    command: ["python", "src/load_coal_postgis.py"]
+    volumes:
+      - ./data/processed:/app/data/processed:ro
+      - ./reports:/app/reports
+
   postgis:
     image: postgis/postgis:16-3.4
     container_name: iris-postgis
