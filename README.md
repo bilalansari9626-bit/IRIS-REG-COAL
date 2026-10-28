@@ -170,6 +170,24 @@ The workflow provides the following report artifacts:
 
 The latest successful PostGIS ingestion confirmed 22 records with the expected regional distribution.
 
+## Map Deliverables
+
+The repository includes a cartographic visualization of Germany's three coal-transition regions, prepared using QGIS.
+
+- **[View Map (PNG)](Maps/IRIS_Coal_Transition_Regions.png)**
+- **[Download Map (PDF)](Maps/IRIS_Coal_Transition_Regions.pdf)**
+- **[Editable QGIS Project](IRIS_Coal_Transition_Regions.qgz)**
+
+The map displays the Rheinisches, Mitteldeutsches, and Lausitzer Reviere over German administrative district boundaries.
+
+The layout includes a legend, north arrow, scale bar, and source attribution. The QGIS project uses relative paths to support portability.
+
+**Data source:** BKG VG250  
+**Legal reference:** InvKG § 2  
+**Coordinate reference system:** EPSG:25832
+
+The visualization represents the configured district-level coal-transition regions and should not be interpreted as a definitive legal eligibility map.
+
 ## 9. Assumptions and Known Limitations
 
 - The workflow is designed for preliminary spatial and regulatory screening. It does not provide legal advice or establish project eligibility.
