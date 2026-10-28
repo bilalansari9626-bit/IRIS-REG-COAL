@@ -1,5 +1,5 @@
 {
-  "input": "/app/data/processed/coal_districts.gpkg",
+  "input": "C:\\IRIS_Coal_Intelligence\\data\\processed\\coal_districts.gpkg",
   "target": "iris_staging.coal_phaseout_reviere",
   "row_count": 22,
   "region_counts": {
@@ -10,5 +10,8 @@
   "crs": "EPSG:25832",
   "legal_source": "https://www.gesetze-im-internet.de/invkg/__2.html",
   "source_version": "BKG VG250 31.12 edition; verify year in source archive",
+  "phaseout_status": "Coal-transition funding region under InvKG Section 2",
+  "status_source_url": "https://www.gesetze-im-internet.de/invkg/__2.html",
+  "status_scope": "Regional funding classification only; not individual facility closure status",
   "note": "District membership and legal version require independent source review."
 }

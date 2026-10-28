@@ -1,0 +1,9 @@
+{
+  "district_count": 22,
+  "region_count": 3,
+  "spatial_matches": 22,
+  "spatial_mismatches": 0,
+  "crs": "EPSG:25832",
+  "method": "Representative-point within region polygon",
+  "result": "PASS"
+}

@@ -17,3 +17,9 @@ CREATE TABLE IF NOT EXISTS iris_staging.coal_phaseout_reviere (
 CREATE INDEX IF NOT EXISTS idx_coal_reviere_geometry
 ON iris_staging.coal_phaseout_reviere
 USING GIST (geometry);
+
+ALTER TABLE iris_staging.coal_phaseout_reviere
+    ADD COLUMN IF NOT EXISTS phaseout_status TEXT,
+    ADD COLUMN IF NOT EXISTS status_as_of DATE,
+    ADD COLUMN IF NOT EXISTS status_source_url TEXT,
+    ADD COLUMN IF NOT EXISTS legal_version_date DATE;
