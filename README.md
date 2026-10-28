@@ -229,3 +229,28 @@ The deliverable demonstrates a working, reproducible staging ingestion workflow 
 Reports:
 - reports/postgis_ingestion.json
 - reports/spatial_validation.json
+
+## Supplementary Coal Power Plant Status Data
+
+The project includes a supplementary extraction from the official
+Bundesnetzagentur Power Plant List (Kraftwerksliste).
+
+Run:
+
+    python src/process_powerplant_status.py
+
+Outputs:
+- data/opportunities/coal_powerplant_status.csv
+- reports/coal_powerplant_status.json
+
+Validation results:
+- 2,614 source records
+- 232 coal power plant records
+- 20 records with missing identifiers
+- 0 duplicate non-empty identifiers
+
+Limitations:
+- The source CSV does not contain geographic coordinates or district codes.
+- Individual plants cannot be reliably assigned to the 22 coal districts.
+- Plant operating status is distinct from regional eligibility under InvKG.
+- This supplementary dataset is not used for the spatial join.

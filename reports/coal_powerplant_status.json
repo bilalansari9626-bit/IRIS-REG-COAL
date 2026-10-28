@@ -1,0 +1,27 @@
+{
+  "source": "Bundesnetzagentur Kraftwerksliste",
+  "source_file": "Kraftwerksliste_CSV.csv",
+  "total_source_records": 2614,
+  "coal_records": 232,
+  "missing_identifiers": 20,
+  "duplicate_identifiers": 0,
+  "fuel_counts": {
+    "Steinkohle": 141,
+    "Braunkohle": 91
+  },
+  "status_counts": {
+    "InBetrieb": 74,
+    "endgültig stillgelegt ohne § 13b EnWG oder KVBG": 51,
+    "endgültig stillgelegt nach § 13b EnWG": 46,
+    "endgültig stillgelegt nach KVBG": 40,
+    "Netzreserve aufgrund § 13b EnWG": 12,
+    "Netzreserve aufgrund von KVBG": 5,
+    "vorläufig Stillgelegt": 3,
+    "zeitl. gestreckte Stilllegung aufgrund § 50 KVBG": 1
+  },
+  "limitations": [
+    "Source CSV does not include geographic coordinates.",
+    "Plant locations cannot be assigned to coal districts.",
+    "This is a national coal-status dataset, not a spatial overlay."
+  ]
+}
