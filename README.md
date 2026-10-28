@@ -1,82 +1,199 @@
-IRIS-REG-COAL — Coal Phase-Out Structural Revier Zones
+# IRIS-REG-COAL — Coal Phase-Out Structural Revier Zones
 
-Technical Assignment: Task 124
+**Technical Assignment:** Task 124  
+**Technology:** Python 3.12, GeoPandas, PostgreSQL/PostGIS, Docker, QGIS
 
-Technology: Python 3.12, GeoPandas, PostgreSQL/PostGIS, Docker, QGIS 
+## 1. Overview
 
-Overview
+This project implements a reproducible geospatial data-processing workflow for identifying and mapping German coal-transition regions under the *Investitionsgesetz Kohleregionen* (InvKG).
 
-This project implements a reproducible geospatial processing workflow for identifying and mapping German coal-transition regions under the Investitionsgesetz Kohleregionen (InvKG).
+The workflow processes official German administrative boundaries, associates district polygons with designated coal-transition regions, validates spatial data, and loads the results into an isolated PostgreSQL/PostGIS staging environment.
 
-The workflow normalizes official German administrative boundaries, associates districts with coal-transition regions, validates spatial geometries, and loads results into an isolated PostGIS staging table.
+The implementation is intended for preliminary regulatory and spatial screening, not for legal eligibility determinations.
 
-Data Sources
+## 2. Data Sources and Provenance
 
-	• Administrative boundaries: Bundesamt für Kartographie und Geodäsie (BKG), VG250
-	• Legal reference: InvKG § 2 — https://www.gesetze-im-internet.de/invkg/__2.html
-	• Coordinate reference system: EPSG:25832
+**Administrative boundaries**
 
-The repository includes processed GeoPackage outputs and the district-to-region membership configuration.
+- Provider: Bundesamt für Kartographie und Geodäsie (BKG)
+- Dataset: VG250 — German administrative boundaries
+- Spatial reference system: EPSG:25832 (ETRS89 / UTM zone 32N)
 
-Output
+**Legal reference**
 
-Database destination: iris_staging.coal_phaseout_reviere
+- Legislation: Investitionsgesetz Kohleregionen (InvKG)
+- Relevant provision: § 2
+- Official reference: https://www.gesetze-im-internet.de/invkg/__2.html
 
-The current dataset contains 22 district records:
+District-to-region assignments are maintained in `config/coal_region_membership.csv`.
 
-Region			 Records
-Lausitzer Revier	 7
-Rheinisches Revier	 7
-Mitteldeutsches Revier	 8
+The repository includes processed GeoPackage datasets. The original BKG archive is excluded because of its size. The exact boundary edition and legal-version alignment remain subject to verification.
 
-The project also produces district-level and dissolved regional GeoPackages.
+## 3. Processing Workflow
 
-Setup
+The pipeline performs the following operations:
 
-	1.	Install Docker Desktop and Python 3.11 or later.
-	2.	Copy .env.example to .env and configure a local development password.
-	3.	Install Python dependencies:
-		python -m pip install -r requirements.txt
-	4.	Start the database:
-		docker compose up -d
-	5.	Initialize the staging table using sql/create_staging_table.sql against the local database.
-	6.	Load the supplied processed GeoPackage:
+1. Processes official administrative boundary polygons.
+2. Normalizes district identifiers and geometry attributes.
+3. Associates districts with coal-transition regions using a configured membership mapping.
+4. Validates required attributes, district counts, identifiers, coordinate reference systems, and geometries.
+5. Generates district-level and dissolved regional spatial outputs.
+6. Loads the district records into an isolated PostGIS staging table using conflict-aware upserts.
+7. Generates validation and ingestion reports.
 
-	python src/load_coal_postgis.py
+## 4. Output Dataset
 
-Testing
+**Database table:** `iris_staging.coal_phaseout_reviere`
 
-Run the automated checks:
+The current dataset contains **22 district records** distributed across three coal-transition regions.
 
-python -m pytest tests -v
+| Region | District records |
+|---|---:|
+| Lausitzer Revier | 7 |
+| Rheinisches Revier | 7 |
+| Mitteldeutsches Revier | 8 |
+| **Total** | **22** |
 
-The existing tests check dataset counts, unique district identifiers, CRS, geometry validity, and the PostGIS row count.
+The project also produces processed GeoPackage files for district boundaries, coal-region districts, and dissolved regional geometries.
 
-Validation Query
+The staging records include district identifiers, district names, regional assignments, legal references, source metadata, and spatial geometries.
 
-SELECT region, COUNT(*) AS district_count
+## 5. Setup and Reproducible Execution
 
+### Requirements
+
+- Docker Desktop with Docker Compose
+- Python 3.11 or later for optional local execution
+- Git for cloning the repository
+
+### Docker workflow — recommended
+
+Clone the repository:
+
+`git clone https://github.com/bilalansari9626-bit/IRIS-REG-COAL.git`
+
+Enter the project directory:
+
+`cd IRIS-REG-COAL`
+
+Copy `.env.example` to `.env` and configure a local development database password.
+
+Start the isolated PostGIS database:
+
+`docker compose up -d`
+
+Build the ETL image:
+
+`docker compose --profile etl build etl`
+
+Run the ingestion pipeline:
+
+`docker compose --profile etl run --rm etl`
+
+Review the generated ingestion report:
+
+`reports/postgis_ingestion.json`
+
+For a newly initialized database volume, the Docker configuration executes `sql/create_staging_table.sql` to initialize the staging database objects.
+
+The ETL reads the included processed GeoPackage through a read-only volume mount and loads records into `iris_staging.coal_phaseout_reviere`.
+
+Repeated execution uses conflict-aware upserts to avoid duplicate district records.
+
+**Important:** Docker database volumes persist between runs. Do not remove the database volume unless intentionally resetting the development environment.
+
+### Optional local Python execution
+
+Install the Python dependencies:
+
+`python -m pip install -r requirements.txt`
+
+Start the PostGIS service:
+
+`docker compose up -d`
+
+Run the ingestion script:
+
+`python src/load_coal_postgis.py`
+
+Local execution uses the database connection settings defined in the Python loader and environment configuration.
+
+## 6. Automated Testing
+
+Run the test suite from the project directory:
+
+`python -m pytest tests -v`
+
+**Latest verified result: 11 tests passed.**
+
+The test suite covers:
+
+- Expected dataset counts
+- Unique district identifiers
+- Coal-region membership counts
+- Coordinate reference system checks
+- Geometry validity
+- PostGIS staging record counts
+- Representative missing, malformed, and duplicate input conditions
+
+The four negative-input tests use a standalone validation helper rather than directly exercising the production loader's validation path. This is a known test-coverage limitation.
+
+The tests that query PostGIS require a running database populated with the representative staging dataset.
+
+## 7. Validation Query
+
+The following SQL query verifies the regional record distribution:
+
+```sql
+SELECT
+    region,
+    COUNT(*) AS district_count
 FROM iris_staging.coal_phaseout_reviere
-
 GROUP BY region
-
 ORDER BY region;
+```
 
-Reports
-	• reports/coal_region_validation.json
-	• reports/postgis_ingestion.json
+Expected result:
 
-Assumptions and Limitations
+| Region | district_count |
+|---|---:|
+| Lausitzer Revier | 7 |
+| Mitteldeutsches Revier | 8 |
+| Rheinisches Revier | 7 |
 
-	• This is a preliminary spatial regulatory screening workflow, not a legal eligibility or permit determination.
-	• District membership is configured using InvKG § 2.
-	• The administrative boundary dataset and its edition must be checked against the source archive for legal and temporal consistency.
-	• Region membership alone does not establish project eligibility or an individual facility's phase-out status.
-	• The current staging output contains administrative membership polygons; it does not independently establish facility-specific closure dates or phase-out milestones.
-	• The raw BKG source archive is excluded from GitHub because of its size. Processed GeoPackages are included for reproducible loading and testing.
-	• Full regeneration from raw data requires the corresponding official BKG input dataset.
+## 8. Validation and Quality Reports
 
-Data Safety
+The workflow provides the following report artifacts:
 
-The implementation writes only to the isolated iris_staging.coal_phaseout_reviere table. It does not require or modify iris_core or production systems.
+- `reports/coal_region_validation.json` — coal-region spatial validation and coverage information.
+- `reports/postgis_ingestion.json` — staging ingestion results and database record counts.
 
+The latest successful PostGIS ingestion confirmed 22 records with the expected regional distribution.
+
+## 9. Assumptions and Known Limitations
+
+- The workflow is designed for preliminary spatial and regulatory screening. It does not provide legal advice or establish project eligibility.
+- District membership is configured with reference to InvKG § 2.
+- The exact edition of the BKG boundary dataset must be verified against the official source archive for temporal and legal consistency.
+- Administrative district membership does not necessarily represent every legally relevant subdistrict boundary or special eligibility condition.
+- The dataset does not independently establish facility-specific closure dates, coal phase-out milestones, or operational status.
+- The current output focuses on administrative region membership. Additional opportunity overlays and facility-level attributes would require separate sourced datasets.
+- The original BKG source archive is not included in the repository. Full regeneration from raw boundaries requires obtaining the corresponding official source dataset.
+- Processed GeoPackage files are included to support repeatable ingestion and validation.
+- Automated negative-input tests do not yet exercise the production validation function directly.
+
+## 10. Data Safety and Environment Isolation
+
+The implementation writes only to the designated staging table:
+
+`iris_staging.coal_phaseout_reviere`
+
+The workflow does not require access to or modify production systems or the `iris_core` schema.
+
+Database credentials are configured locally through environment variables and should not be committed to version control.
+
+## 11. Submission Scope
+
+This repository provides Python processing scripts, pinned Python dependencies, an example environment configuration, Docker build and Compose configurations, staging SQL, processed spatial datasets, automated tests, and validation reports.
+
+The deliverable demonstrates a working, reproducible staging ingestion workflow for coal-transition district membership, with documented assumptions and limitations.
