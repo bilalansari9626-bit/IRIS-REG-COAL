@@ -215,3 +215,17 @@ Database credentials are configured locally through environment variables and sh
 This repository provides Python processing scripts, pinned Python dependencies, an example environment configuration, Docker build and Compose configurations, staging SQL, processed spatial datasets, automated tests, and validation reports.
 
 The deliverable demonstrates a working, reproducible staging ingestion workflow for coal-transition district membership, with documented assumptions and limitations.
+
+## Validation and known limitations
+
+- PostGIS ingestion: 22 coal districts across 3 regions.
+- Geometry validation: all 22 district geometries valid.
+- Spatial validation: 22 district-to-region matches, 0 mismatches.
+- Regional status represents InvKG funding eligibility, not individual
+  power plant closure status.
+- Opportunity overlay: not implemented; requires a separate sourced dataset.
+- Legal version date and source edition require verification.
+
+Reports:
+- reports/postgis_ingestion.json
+- reports/spatial_validation.json
