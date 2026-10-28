@@ -12,6 +12,7 @@ services:
       - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - iris_postgis_data:/var/lib/postgresql/data
+      - ./sql/create_staging_table.sql:/docker-entrypoint-initdb.d/01-create-staging-table.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U iris -d iris_coal"]
       interval: 10s
@@ -20,5 +21,4 @@ services:
 
 volumes:
   iris_postgis_data:
-    external: true
     name: iris_postgis_data
