@@ -30,23 +30,61 @@ log = logging.getLogger("iris.ingest")
 def main():
     if not INPUT.is_file():
         raise FileNotFoundError(f"Missing processed GIS dataset: {INPUT}")
+
     data = gpd.read_file(INPUT)
-    required = {"district_code", "district_name", "region", "legal_reference", "geometry"}
+
+    required = {
+        "district_code",
+        "district_name",
+        "region",
+        "legal_reference",
+        "geometry",
+    }
+
     if not required.issubset(data.columns):
-        raise ValueError(f"Missing columns: {sorted(required - set(data.columns))}")
+        raise ValueError(
+            f"Missing columns: {sorted(required - set(data.columns))}"
+        )
+
     if data.crs is None or data.crs.to_epsg() != 25832:
         raise ValueError(f"Expected EPSG:25832, got {data.crs}")
-    data["district_code"] = data["district_code"].astype(str).str.strip().str.zfill(5)
-    if len(data) != 22 or data.district_code.duplicated().any():
-        raise ValueError("Expected exactly 22 uniquely identified coal districts")
-    if data.region.value_counts().to_dict() != EXPECTED_COUNTS:
-        raise ValueError("Unexpected region counts; review legal membership source")
+
+    if data["district_code"].isna().any():
+        raise ValueError("Missing district code")
+
+    data["district_code"] = (
+        data["district_code"].astype(str).str.strip()
+    )
+
+    if data["district_code"].eq("").any():
+        raise ValueError("Empty district code")
+
+    data["district_code"] = data["district_code"].str.zfill(5)
+
+    if len(data) != 22 or data["district_code"].duplicated().any():
+        raise ValueError(
+            "Expected exactly 22 uniquely identified coal districts"
+        )
+
+    if data["region"].value_counts().to_dict() != EXPECTED_COUNTS:
+        raise ValueError(
+            "Unexpected region counts; review legal membership source"
+        )
+
     if data[list(required - {"geometry"})].isna().any().any():
         raise ValueError("Missing required attributes")
-    if data.geometry.isna().any() or data.geometry.is_empty.any() or not data.geometry.is_valid.all():
+
+    if (
+        data.geometry.isna().any()
+        or data.geometry.is_empty.any()
+        or not data.geometry.is_valid.all()
+    ):
         raise ValueError("Missing, empty or invalid geometry")
 
-    source_version = os.getenv("IRIS_SOURCE_VERSION", "BKG VG250 31.12 edition; verify year in source archive")
+    source_version = os.getenv(
+        "IRIS_SOURCE_VERSION",
+        "BKG VG250 31.12 edition; verify year in source archive"
+    )
     rows = []
     for rec in data.itertuples(index=False):
         geom = rec.geometry

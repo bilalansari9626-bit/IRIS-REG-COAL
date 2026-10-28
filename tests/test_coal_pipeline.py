@@ -1,12 +1,14 @@
 import os
 
 from pathlib import Path
+from dotenv import load_dotenv
 
 import geopandas as gpd
 import pytest
 from sqlalchemy import create_engine, text
 
 ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")
 PROCESSED = ROOT / "data" / "processed"
 
 
