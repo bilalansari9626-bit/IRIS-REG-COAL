@@ -1,0 +1,16 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.log
+# Large original geographic source data
+data/raw/
+
+# Local database and temporary files
+*.gpkg-wal
+*.gpkg-shm
+*.gpkg-journal
+
+# Local credentials
+.env

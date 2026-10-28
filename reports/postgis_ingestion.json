@@ -1,0 +1,14 @@
+{
+  "input": "C:\\IRIS_Coal_Intelligence\\data\\processed\\coal_districts.gpkg",
+  "target": "iris_staging.coal_phaseout_reviere",
+  "row_count": 22,
+  "region_counts": {
+    "Lausitzer Revier": 7,
+    "Mitteldeutsches Revier": 8,
+    "Rheinisches Revier": 7
+  },
+  "crs": "EPSG:25832",
+  "legal_source": "https://www.gesetze-im-internet.de/invkg/__2.html",
+  "source_version": "BKG VG250 31.12 edition; verify year in source archive",
+  "note": "District membership and legal version require independent source review."
+}

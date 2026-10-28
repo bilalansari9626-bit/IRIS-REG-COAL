@@ -1,0 +1,16 @@
+{
+  "source_boundaries": "C:\\IRIS_Coal_Intelligence\\data\\processed\\districts_normalized.gpkg",
+  "legal_membership_file": "C:\\IRIS_Coal_Intelligence\\config\\coal_region_membership.csv",
+  "legal_source_url": "https://www.gesetze-im-internet.de/invkg/__2.html",
+  "input_districts": 400,
+  "matched_coal_districts": 22,
+  "region_counts": {
+    "Mitteldeutsches Revier": 8,
+    "Lausitzer Revier": 7,
+    "Rheinisches Revier": 7
+  },
+  "region_polygons": 3,
+  "crs": "EPSG:25832",
+  "invalid_geometries": 0,
+  "note": "Membership CSV must be independently checked against the applicable legal version."
+}
